@@ -5,6 +5,9 @@ import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import com.mysql.cj.xdevapi.*
 
+import java.util.concurrent.CompletableFuture
+import java.util.concurrent.TimeUnit
+
 @SpringBootApplication
 class MysqlApplication implements CommandLineRunner {
 
@@ -35,6 +38,7 @@ class MysqlApplication implements CommandLineRunner {
         Collection myColl = myDb.getCollection("people")
 
         // Insert documents
+        myColl.add(/{"name":"Will", "age":57, "spouse":"marian" }/).execute()
         myColl.add("{\"name\":\"Sakila\", \"age\":15}").execute()
         myColl.add("{\"name\":\"Susanne\", \"age\":24}").execute()
         myColl.add("{\"name\":\"User\", \"age\":39}").execute()
@@ -54,6 +58,30 @@ class MysqlApplication implements CommandLineRunner {
 
         // Print document
         println(myDocs.fetchOne())
+
+        println "multi row insert - insert bulk records "
+
+        def v
+        def org
+         def start = System.nanoTime()
+        def vArr = []
+        List aRes = []
+        //write 100k records
+        for (int i=1; i<1001;i++) {
+            vArr <<  /{"name":"person#[$i]", "age":$i, "spouse":"marian", "inaugurated":2000 }/
+
+        }
+        println vArr.size() + " person  to insert in mysql document"
+
+        vArr.each {aRes << myColl.add(it).execute()}
+
+        def end = System.nanoTime()
+        def duration = (end - start)
+        def period = TimeUnit.MILLISECONDS.convert(duration, TimeUnit.NANOSECONDS)/1000
+
+        println "mysql 1000 records async done in duration " + period + " seconds"
+
+        aRes*.join()
         mySession.close()
     }
 }
