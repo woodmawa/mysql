@@ -64,22 +64,25 @@ class MysqlApplication implements CommandLineRunner {
         def v
         def org
          def start = System.nanoTime()
-        def vArr = []
+        List<String> vArr = []
         List aRes = []
         //write 100k records
-        for (int i=1; i<101;i++) {
-            vArr <<  /{"name":"person#[$i]", "age":$i, "spouse":"marian", "inaugurated":2000 }/
+        for (int i=1; i<10001;i++) {
+            vArr.add( /{"name":"person#[$i]", "age":$i, "spouse":"marian", "inaugurated":2000 }/.toString())
 
         }
         println vArr.size() + " person  to insert in mysql document"
-
+        //myColl.add ("[$vArr]" ).execute()
+        def sess = myDb.getSession()
+        sess.startTransaction()
         vArr.each {aRes << myColl.add(it).execute()}
+        sess.commit()
 
         def end = System.nanoTime()
         def duration = (end - start)
         def period = TimeUnit.MILLISECONDS.convert(duration, TimeUnit.NANOSECONDS)/1000
 
-        println "mysql 100 records done in duration " + period + " seconds"
+        println "mysql 10000 records done in duration " + period + " seconds"
 
         mySession.close()
     }
