@@ -67,7 +67,7 @@ class MysqlApplication implements CommandLineRunner {
         def vArr = []
         List aRes = []
         //write 100k records
-        for (int i=1; i<1001;i++) {
+        for (int i=1; i<101;i++) {
             vArr <<  /{"name":"person#[$i]", "age":$i, "spouse":"marian", "inaugurated":2000 }/
 
         }
@@ -79,9 +79,8 @@ class MysqlApplication implements CommandLineRunner {
         def duration = (end - start)
         def period = TimeUnit.MILLISECONDS.convert(duration, TimeUnit.NANOSECONDS)/1000
 
-        println "mysql 1000 records async done in duration " + period + " seconds"
+        println "mysql 100 records done in duration " + period + " seconds"
 
-        aRes*.join()
         mySession.close()
     }
 }
